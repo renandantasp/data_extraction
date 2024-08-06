@@ -1,10 +1,14 @@
-import os
-from config import ROOT_DIR, OUTPUT_DIR, IMGS_DIR, EXCEL_PATH, RESULTS_DIR
+import os, logging
+from config import ROOT_DIR, OUTPUT_DIR, IMGS_DIR, EXCEL_PATH, RESULTS_DIR, LOGGING_LEVEL, LOG_FILE
 from robocorp.tasks import task
 from RPA.Excel.Files import Files, Table
 from news_retriever import retrieve_news
-
 from robocorp import workitems
+
+logging.basicConfig(level=LOGGING_LEVEL, 
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()])
+logger = logging.getLogger(__name__)
 
 def get_items() -> dict:
   """Retrieve input items from workitems."""
@@ -30,6 +34,8 @@ def extract_news() -> None:
   table = create_table()
   
   news_list = retrieve_news(items)
+  logger.info(f"Retrieved {len(news_list)} news items.")
+
   if not os.path.exists(RESULTS_DIR):
     os.makedirs(RESULTS_DIR)
   if not os.path.exists(IMGS_DIR):
@@ -45,3 +51,4 @@ def extract_news() -> None:
   file.create_workbook(EXCEL_PATH, sheet_name='News')
   file.append_rows_to_worksheet(table)
   file.save_workbook()
+  logger.info(f"News articles saved to {EXCEL_PATH}.")

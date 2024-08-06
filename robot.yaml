@@ -1,6 +1,6 @@
 tasks:
   Browser Example:
-    shell: python -m robocorp.tasks run news_extractor.py
+    shell: python -m robocorp.tasks run main.py
 
 environmentConfigs:
   - environment_windows_amd64_freeze.yaml
