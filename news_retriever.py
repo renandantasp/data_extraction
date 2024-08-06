@@ -1,5 +1,5 @@
 from typing import List
-import logging
+import os, logging, re
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from selenium import webdriver
@@ -9,8 +9,11 @@ from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support import expected_conditions as EC
+from urllib.parse import urlparse
+import urllib.request
 from utils import count_query, mentions_money
-from config import LOG_FILE
+from config import LOG_FILE, IMGS_DIR
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -23,6 +26,14 @@ stream_handler.setFormatter(formatter)
 
 logger.addHandler(file_handler)
 logger.addHandler(stream_handler)
+
+def download_image(image_url: str, save_path: str) -> None:
+    """Download an image from a URL and save it to a local file."""
+    try:
+        urllib.request.urlretrieve(image_url, save_path)
+        logger.info(f"Image downloaded and saved to {save_path}.")
+    except Exception as e:
+        logger.error(f"Failed to download image from {image_url}: {e}")
 
 def retrieve_news(params: dict) -> List[List[str]]:  
   ff_options = Options()
@@ -73,12 +84,17 @@ def retrieve_news(params: dict) -> List[List[str]]:
         time = datetime.fromtimestamp(last_time).strftime('%y-%m-%d')
         title = news_tag.find_element(By.CLASS_NAME, 'promo-title').text
         desc = news_tag.find_element(By.CLASS_NAME, 'promo-description').text
-        image = news_tag.find_element(By.CLASS_NAME, 'promo-placeholder').get_attribute('href')
+        image_url = news_tag.find_element(By.CLASS_NAME, 'image').get_attribute('srcset').split(' ')[0]
+
+        image_filename =  re.sub(r'[^a-zA-Z0-9\s]', '', title) + '.jpg'
+        save_path = os.path.join(IMGS_DIR, image_filename)
+        download_image(image_url, save_path)
+
         count_q = count_query(params['query'], title, desc)
         has_money = mentions_money(f'{title} {desc}')
         logger.debug(f"Added news item: {title}")
         
-        news.append([title,desc,time,image,count_q,has_money])
+        news.append([title,desc,time,f'{save_path}',count_q,has_money])
 
       next_anchor = WebDriverWait(driver, 5).until(
           EC.presence_of_element_located((By.XPATH, "//div[@class='search-results-module-next-page']//a"))
