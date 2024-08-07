@@ -13,8 +13,12 @@ logger = logging.getLogger(__name__)
 
 def get_items() -> dict:
   """Retrieve input items from workitems."""
-
-  return workitems.inputs.current.payload
+  json = workitems.inputs.current.payload
+  payload = dict()
+  payload['query'] = json['query']
+  payload['section'] = json['section']
+  payload['months'] = json['months']
+  return payload
 
 def create_table() -> Table:
   """Create and initialize a table with headers."""
