@@ -1,4 +1,5 @@
 import os, logging
+from datetime import datetime
 from config import ROOT_DIR, OUTPUT_DIR, IMGS_DIR, EXCEL_PATH, RESULTS_DIR, LOGGING_LEVEL, LOG_FILE
 from robocorp.tasks import task
 from RPA.Excel.Files import Files, Table
@@ -47,8 +48,10 @@ def extract_news() -> None:
     table.append_row(news)
 
   file = Files()
-  
-  file.create_workbook(EXCEL_PATH, sheet_name='News')
+  now = datetime.now()
+  now = now.strftime('%y-%m-%d')
+  filepath = f'{RESULTS_DIR}/latimes_{now}.xlsx'
+  file.create_workbook(filepath, sheet_name='News')
   file.append_rows_to_worksheet(table)
   file.save_workbook()
-  logger.info(f"News articles saved to {EXCEL_PATH}.")
+  logger.info(f"News articles saved to {filepath}.")
