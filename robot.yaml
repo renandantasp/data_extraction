@@ -1,5 +1,5 @@
 tasks:
-  Browser Example:
+  LA Times Extraction:
     shell: python -m robocorp.tasks run main.py
 
 environmentConfigs:
