@@ -83,11 +83,15 @@ def retrieve_news(params: dict) -> List[List[str]]:
         time = datetime.fromtimestamp(last_time).strftime('%y-%m-%d')
         title = news_tag.find_element(By.CLASS_NAME, 'promo-title').text
         desc = news_tag.find_element(By.CLASS_NAME, 'promo-description').text
-        image_url = news_tag.find_element(By.CLASS_NAME, 'image').get_attribute('srcset').split(' ')[0]
+        save_path = 'image not found'
+        try:
+          image_url = news_tag.find_element(By.CLASS_NAME, 'image').get_attribute('srcset').split(' ')[0]
 
-        image_filename =  normalize_str(title) + '.jpg'
-        save_path = os.path.join(OUTPUT_DIR, image_filename)
-        download_image(image_url, save_path)
+          image_filename =  normalize_str(title) + '.jpg'
+          save_path = os.path.join(OUTPUT_DIR, image_filename)
+          download_image(image_url, save_path)
+        except Exception as e:
+          logger.error(f'Erro saving image. {e}')
 
         count_q = count_query(params['query'], title, desc)
         has_money = mentions_money(f'{title} {desc}')
