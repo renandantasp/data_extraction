@@ -13,7 +13,16 @@ logging.basicConfig(level=LOGGING_LEVEL,
 logger = logging.getLogger(__name__)
 
 def get_items() -> dict:
-  """Retrieve input items from workitems."""
+  """
+    Retrieve input items from workitems.
+
+    This function retrieves the current payload from workitems.inputs and extracts
+    the 'query', 'section', and 'months' values. If 'months' is less than or equal to 0,
+    it sets 'months' to 1.
+
+    Returns:
+    dict: A dictionary containing the 'query', 'section', and 'months' values.
+  """
   json = workitems.inputs.current.payload
   payload = dict()
   payload['query'] = json['query']
@@ -25,7 +34,16 @@ def get_items() -> dict:
   return payload
 
 def create_table() -> Table:
-  """Create and initialize a table with headers."""
+  """
+    Create and initialize a table with headers.
+
+    This function creates a new Table instance, appends six columns, and sets the first row
+    with specific headers: 'Title', 'Description', 'Date', 'Picture Filename', '# of query in title/desc',
+    and 'Has Money'.
+
+    Returns:
+    Table: An initialized Table instance with headers set.
+  """
   table = Table()
   for _ in range(6):
     table.append_column()  
@@ -37,7 +55,12 @@ def create_table() -> Table:
 
 @task
 def extract_news() -> None:
-  """Extract news articles and save to an Excel file."""
+  """
+    Extract news articles and save to an Excel file.
+
+    Returns:
+    None  
+  """
   items = get_items()    
   
   table = create_table()

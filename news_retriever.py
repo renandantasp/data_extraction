@@ -28,7 +28,16 @@ logger.addHandler(file_handler)
 logger.addHandler(stream_handler)
 
 def download_image(image_url: str, save_path: str) -> None:
-  """Download an image from a URL and save it to a local file."""
+  """
+    Download an image from a URL and save it to a local file.
+
+    Parameters:
+    image_url (str): The URL of the image to download.
+    save_path (str): The local file path where the image will be saved.
+
+    Returns:
+    None
+  """
   try:
       urllib.request.urlretrieve(image_url, save_path)
       logger.info(f"Image downloaded and saved to {save_path}.")
@@ -36,6 +45,15 @@ def download_image(image_url: str, save_path: str) -> None:
       logger.error(f"Failed to download image from {image_url}: {e}")
 
 def retrieve_news(params: dict) -> List[List[str]]:  
+  """
+    Retrieve news articles from the Los Angeles Times website based on specified parameters.
+
+    Parameters:
+    params (dict): A dictionary containing the query, section and months parameters for filtering the news articles.
+
+    Returns:
+    List[List[str]]: A list of news articles, where each article is represented as a list containing the title, description, date, image path, query count, and money mention status.
+  """
   ff_options = Options()
   ff_options.add_argument("--headless")
   driver = webdriver.Firefox(options=ff_options)

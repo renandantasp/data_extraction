@@ -12,7 +12,20 @@ file_handler.setFormatter(formatter)
 stream_handler.setFormatter(formatter)
 
 def count_query(query: str, title: str, desc: str) -> int:
-  """Count occurrences of the query in title and description."""
+  """
+    Count occurrences of the query in the title and description.
+
+    This function counts how many times the specified query appears in both
+    the title and description by using regular expression matching.
+
+    Parameters:
+    query (str): The query string to search for.
+    title (str): The title string to search within.
+    desc (str): The description string to search within.
+
+    Returns:
+    int: The total number of occurrences of the query in the title and description.
+  """
   occurr_title = re.findall(query, title)
   occurr_desc = re.findall(query, desc)
   count = len(occurr_title) + len(occurr_desc)
@@ -21,7 +34,18 @@ def count_query(query: str, title: str, desc: str) -> int:
 
 
 def mentions_money(text: str) -> bool:
-  """Check if the text mentions money."""
+  """
+    Check if the text mentions money.
+
+    This function checks whether the given text contains any mention of monetary values
+    using a regular expression pattern that matches common money formats.
+
+    Parameters:
+    text (str): The text to check for monetary mentions.
+
+    Returns:
+    bool: True if the text mentions money, False otherwise.
+  """
   pattern = r"""
     (?<!\w)  
     (                 
@@ -35,6 +59,17 @@ def mentions_money(text: str) -> bool:
   return match is not None
 
 def normalize_str(text: str) -> str:
-  """Normalize the text by removing any kind of ponctuation"""
+  """
+    Normalize the text by removing any kind of punctuation.
+
+    This function removes all non-alphanumeric characters (excluding spaces) from the given text,
+    effectively normalizing it by retaining only letters, numbers, and whitespace.
+
+    Parameters:
+    text (str): The text to be normalized.
+
+    Returns:
+    str: The normalized text with punctuation removed.
+  """
 
   return re.sub(r'[^a-zA-Z0-9\s]', '', text)
