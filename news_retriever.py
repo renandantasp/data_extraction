@@ -28,12 +28,12 @@ logger.addHandler(file_handler)
 logger.addHandler(stream_handler)
 
 def download_image(image_url: str, save_path: str) -> None:
-    """Download an image from a URL and save it to a local file."""
-    try:
-        urllib.request.urlretrieve(image_url, save_path)
-        logger.info(f"Image downloaded and saved to {save_path}.")
-    except Exception as e:
-        logger.error(f"Failed to download image from {image_url}: {e}")
+  """Download an image from a URL and save it to a local file."""
+  try:
+      urllib.request.urlretrieve(image_url, save_path)
+      logger.info(f"Image downloaded and saved to {save_path}.")
+  except Exception as e:
+      logger.error(f"Failed to download image from {image_url}: {e}")
 
 def retrieve_news(params: dict) -> List[List[str]]:  
   ff_options = Options()
