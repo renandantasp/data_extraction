@@ -1,6 +1,7 @@
 import os, logging
 from datetime import datetime
-from config import IMGS_DIR, OUTPUT_DIR, LOGGING_LEVEL, LOG_FILE
+from config import OUTPUT_DIR, LOGGING_LEVEL, LOG_FILE
+from utils import normalize_str
 from robocorp.tasks import task
 from RPA.Excel.Files import Files, Table
 from news_retriever import retrieve_news
@@ -40,9 +41,6 @@ def extract_news() -> None:
   
   news_list = retrieve_news(items)
   logger.info(f"Retrieved {len(news_list)} news items.")
-
-  if not os.path.exists(IMGS_DIR):
-    os.makedirs(IMGS_DIR)
     
   if len(news_list) == 0:
     return
@@ -52,7 +50,9 @@ def extract_news() -> None:
   file = Files()
   now = datetime.now()
   now = now.strftime('%y-%m-%d')
-  filepath = f'{OUTPUT_DIR}/latimes_{now}.xlsx'
+  query = normalize_str(items['query'])
+  section = normalize_str(items['section'])
+  filepath = f'{OUTPUT_DIR}/latimes_{now}_{query}_{section}.xlsx'
   file.create_workbook(filepath, sheet_name='News')
   file.append_rows_to_worksheet(table)
   file.save_workbook()

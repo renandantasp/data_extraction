@@ -10,8 +10,8 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 import urllib.request
-from utils import count_query, mentions_money
-from config import LOG_FILE, IMGS_DIR
+from utils import count_query, mentions_money, normalize_str
+from config import LOG_FILE, OUTPUT_DIR
 
 
 logger = logging.getLogger(__name__)
@@ -85,8 +85,8 @@ def retrieve_news(params: dict) -> List[List[str]]:
         desc = news_tag.find_element(By.CLASS_NAME, 'promo-description').text
         image_url = news_tag.find_element(By.CLASS_NAME, 'image').get_attribute('srcset').split(' ')[0]
 
-        image_filename =  re.sub(r'[^a-zA-Z0-9\s]', '', title) + '.jpg'
-        save_path = os.path.join(IMGS_DIR, image_filename)
+        image_filename =  normalize_str(title) + '.jpg'
+        save_path = os.path.join(OUTPUT_DIR, image_filename)
         download_image(image_url, save_path)
 
         count_q = count_query(params['query'], title, desc)

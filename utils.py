@@ -33,3 +33,8 @@ def mentions_money(text: str) -> bool:
     match = re.search(pattern, text, re.VERBOSE | re.IGNORECASE)
     logger.debug(f"Text '{text}' mentions money: {match is not None}")
     return match is not None
+
+def normalize_str(text: str) -> str:
+    """Normalize the text by removing any kind of ponctuation"""
+
+    return re.sub(r'[^a-zA-Z0-9\s]', '', text)
