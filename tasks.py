@@ -19,6 +19,9 @@ def get_items() -> dict:
   payload['query'] = json['query']
   payload['section'] = json['section']
   payload['months'] = json['months']
+  if payload['months'] <= 0:
+    payload['months'] = 1
+
   return payload
 
 def create_table() -> Table:

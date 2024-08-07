@@ -9,6 +9,7 @@ from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 import urllib.request
 from utils import count_query, mentions_money, normalize_str
 from config import LOG_FILE, OUTPUT_DIR
@@ -62,11 +63,15 @@ def retrieve_news(params: dict) -> List[List[str]]:
     select.select_by_visible_text('Newest')
     
     filter_xpath = "//label[span[text()='" + params['section'] + "']]//input[@type='checkbox']"
-    filter = WebDriverWait(driver, 5).until(
-        EC.presence_of_element_located((By.XPATH, filter_xpath))
-    )
-    if not filter.is_selected():
-      filter.click()    
+    
+    try:
+      filter = WebDriverWait(driver, 5).until(
+          EC.presence_of_element_located((By.XPATH, filter_xpath))
+      )
+      if not filter.is_selected():
+        filter.click()    
+    except TimeoutException:
+      logger.error('Filter does not exist. Continuing without applying any filter')
 
     last_time = datetime.now().timestamp()
     time_limit = (datetime.now() - relativedelta(months=int(params['months']))).timestamp()
