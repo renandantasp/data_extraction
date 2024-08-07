@@ -1,6 +1,6 @@
 tasks:
   LA Times Extraction:
-    shell: python -m robocorp.tasks run main.py
+    shell: python -m robocorp.tasks run tasks.py
 
 environmentConfigs:
   - environment_windows_amd64_freeze.yaml
