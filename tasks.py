@@ -1,6 +1,6 @@
 import os, logging
 from datetime import datetime
-from config import ROOT_DIR, OUTPUT_DIR, IMGS_DIR, EXCEL_PATH, RESULTS_DIR, LOGGING_LEVEL, LOG_FILE
+from config import IMGS_DIR, RESULTS_DIR, LOGGING_LEVEL, LOG_FILE
 from robocorp.tasks import task
 from RPA.Excel.Files import Files, Table
 from news_retriever import retrieve_news

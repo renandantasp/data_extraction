@@ -9,7 +9,6 @@ from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support import expected_conditions as EC
-from urllib.parse import urlparse
 import urllib.request
 from utils import count_query, mentions_money
 from config import LOG_FILE, IMGS_DIR
