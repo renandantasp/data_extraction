@@ -1,4 +1,4 @@
-import os, logging
+import os, os.path, logging
 from datetime import datetime
 from config import OUTPUT_DIR, LOGGING_LEVEL, LOG_FILE
 from utils import normalize_str
@@ -56,4 +56,7 @@ def extract_news() -> None:
   file.create_workbook(filepath, sheet_name='News')
   file.append_rows_to_worksheet(table)
   file.save_workbook()
-  logger.info(f"News articles saved to {filepath}.")
+  if os.path.isfile(filepath):    
+    logger.info(f"News articles saved to {filepath}.")
+  else:
+    logger.error(f"Error to save {filepath}.")
