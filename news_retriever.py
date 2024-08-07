@@ -41,6 +41,8 @@ def retrieve_news(params: dict) -> List[List[str]]:
   driver = webdriver.Firefox(options=ff_options)
   driver.get("https://www.latimes.com/")
   
+  news = []
+  
   try:
     logger.info("Starting search for news articles.")
 
@@ -65,9 +67,7 @@ def retrieve_news(params: dict) -> List[List[str]]:
         EC.presence_of_element_located((By.XPATH, filter_xpath))
     )
     if not filter.is_selected():
-      filter.click()
-
-    news = []
+      filter.click()    
 
     last_time = datetime.now().timestamp()
     time_limit = (datetime.now() - relativedelta(months=int(params['months']))).timestamp()
