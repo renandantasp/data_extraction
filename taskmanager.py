@@ -2,7 +2,6 @@ import os, os.path, logging
 from datetime import datetime
 from config import OUTPUT_DIR, LOGGING_LEVEL, LOG_FILE
 from utils import Utils
-from robocorp.tasks import task
 from RPA.Excel.Files import Files, Table
 from news_retriever import NewsRetriever
 from robocorp import workitems
@@ -59,7 +58,6 @@ class TaskManager:
     ])
     return table
 
-  @task
   def extract_news(self) -> None:
     """
       Extract news articles and save to an Excel file.
@@ -82,8 +80,8 @@ class TaskManager:
     file = Files()
     now = datetime.now()
     now = now.strftime('%y-%m-%d')
-    query = self.utilsnormalize_str(items['query'])
-    section = self.utilsnormalize_str(items['section'])
+    query = self.utils.normalize_str(items['query'])
+    section = self.utils.normalize_str(items['section'])
     filepath = f'{OUTPUT_DIR}/latimes_{now}_{query}_{section}.xlsx'
     file.create_workbook(filepath, sheet_name='News')
     file.append_rows_to_worksheet(table)
