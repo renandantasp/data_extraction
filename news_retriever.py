@@ -1,5 +1,6 @@
 from typing import List
-import os, logging, re
+import os
+import logging
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from selenium import webdriver
@@ -11,137 +12,132 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.remote.webdriver import WebDriver
 import urllib.request
 from utils import Utils
 from config import LOG_FILE, OUTPUT_DIR
 
 class NewsRetriever:
   
-  def __init__(self):
-    self.utils = Utils()
-    self.logger = logging.getLogger(__name__)
-    self.logger.setLevel(logging.DEBUG)
-    file_handler = logging.FileHandler(LOG_FILE)
-    stream_handler = logging.StreamHandler()
+    def __init__(self):
+        self.utils = Utils()
+        self.logger = self.setup_logger()
 
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    file_handler.setFormatter(formatter)
-    stream_handler.setFormatter(formatter)
+    def setup_logger(self) -> logging.Logger:
+        logger = logging.getLogger(__name__)
+        logger.setLevel(logging.DEBUG)
+        file_handler = logging.FileHandler(LOG_FILE)
+        stream_handler = logging.StreamHandler()
 
-    self.logger.addHandler(file_handler)
-    self.logger.addHandler(stream_handler)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        file_handler.setFormatter(formatter)
+        stream_handler.setFormatter(formatter)
 
-  def download_image(self, image_url: str, save_path: str) -> None:
-    """
-      Download an image from a URL and save it to a local file.
+        logger.addHandler(file_handler)
+        logger.addHandler(stream_handler)
 
-      Parameters:
-      image_url (str): The URL of the image to download.
-      save_path (str): The local file path where the image will be saved.
+        return logger
 
-      Returns:
-      None
-    """
-    try:
-        urllib.request.urlretrieve(image_url, save_path)
-        self.logger.info(f"Image downloaded and saved to {save_path}.")
-    except Exception as e:
-        self.logger.error(f"Failed to download image from {image_url}: {e}")
+    def download_image(self, image_url: str, save_path: str) -> None:
+        try:
+            urllib.request.urlretrieve(image_url, save_path)
+            self.logger.info(f"Image downloaded and saved to {save_path}.")
+        except Exception as e:
+            self.logger.error(f"Failed to download image from {image_url}: {e}")
 
-  def retrieve_image(self, news_tag: WebElement, title: str) -> None:
-    save_path = 'image not found'
-    try:
-      image_url = news_tag.find_element(By.CLASS_NAME, 'image').get_attribute('srcset').split(' ')[0]
+    def retrieve_image(self, news_tag: WebElement, title: str) -> str:
+        save_path = 'image not found'
+        try:
+            image_url = news_tag.find_element(By.CLASS_NAME, 'image').get_attribute('srcset').split(' ')[0]
+            image_filename = self.utils.normalize_str(title) + '.jpg'
+            save_path = os.path.join(OUTPUT_DIR, image_filename)
+            self.download_image(image_url, save_path)
+        except Exception as e:
+            self.logger.error(f'Error saving image: {e}')
+        return save_path
 
-      image_filename =  self.utils.normalize_str(title) + '.jpg'
-      save_path = os.path.join(OUTPUT_DIR, image_filename)
-      self.download_image(image_url, save_path)
-    except Exception as e:
-      self.logger.error(f'Erro saving image. {e}')
-    
-  def retrieve_news(self, params: dict) -> List[List[str]]:  
-    """
-      Retrieve news articles from the Los Angeles Times website based on specified parameters.
+    def apply_filter(self, driver: WebDriver, filter_text: str) -> None:
+        filter_xpath = f"//label[span[text()='{filter_text}']]//input[@type='checkbox']"
+        try:
+            filter = WebDriverWait(driver, 5).until(
+                EC.presence_of_element_located((By.XPATH, filter_xpath))
+            )
+            if not filter.is_selected():
+                filter.click()
+        except TimeoutException:
+            self.logger.error('Filter does not exist. Continuing without applying any filter')
 
-      Parameters:
-      params (dict): A dictionary containing the query, section and months parameters for filtering the news articles.
+    def init_webdriver(self) -> WebDriver:
+        ff_options = Options()
+        #ff_options.add_argument("--headless")
+        driver = webdriver.Firefox(options=ff_options)
+        driver.get("https://www.latimes.com/")
+        return driver
 
-      Returns:
-      List[List[str]]: A list of news articles, where each article is represented as a list containing the title, description, date, image path, query count, and money mention status.
-    """
-    ff_options = Options()
-    #ff_options.add_argument("--headless")
-    driver = webdriver.Firefox(options=ff_options)
-    driver.get("https://www.latimes.com/")
-    
-    news = []
-    
-    try:
-      self.logger.info("Starting search for news articles.")
-
-      search_button = WebDriverWait(driver, 5).until(
-          EC.presence_of_element_located((By.XPATH, "//button[@data-element='search-button']"))
-      )
-      search_button.click()
-      input_form = WebDriverWait(driver, 5).until(
-          EC.presence_of_element_located((By.XPATH, "//input[@data-element='search-form-input']"))
-      )
-      input_form.send_keys(params['query'])
-      input_form.send_keys(Keys.ENTER)
-
-      select_sort = WebDriverWait(driver, 10).until(
-          EC.presence_of_element_located((By.XPATH, "//select[@class='select-input']"))
-      )
-      select = Select(select_sort)
-      select.select_by_visible_text('Newest')
-      
-      filter_xpath = "//label[span[text()='" + params['section'] + "']]//input[@type='checkbox']"
-      
-      try:
-        filter = WebDriverWait(driver, 5).until(
-            EC.presence_of_element_located((By.XPATH, filter_xpath))
+    def search_news(self, driver: WebDriver, query: str) -> None:
+        search_button = WebDriverWait(driver, 5).until(
+            EC.presence_of_element_located((By.XPATH, "//button[@data-element='search-button']"))
         )
-        if not filter.is_selected():
-          filter.click()    
-      except TimeoutException:
-        self.logger.error('Filter does not exist. Continuing without applying any filter')
+        search_button.click()
+        input_form = WebDriverWait(driver, 5).until(
+            EC.presence_of_element_located((By.XPATH, "//input[@data-element='search-form-input']"))
+        )
+        input_form.send_keys(query)
+        input_form.send_keys(Keys.ENTER)
 
-      last_time = datetime.now().timestamp()
-      time_limit = (datetime.now() - relativedelta(months=int(params['months']))).timestamp()
+    def sort_news_by_newest(self, driver: WebDriver) -> None:
+        select_sort = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, "//select[@class='select-input']"))
+        )
+        select = Select(select_sort)
+        select.select_by_visible_text('Newest')
 
-      while last_time > time_limit:
-        news_tags = WebDriverWait(driver, 5).until(
+    def get_news_elements(self, driver: WebDriver) -> List[WebElement]:
+        return WebDriverWait(driver, 5).until(
             EC.presence_of_all_elements_located((By.XPATH, "//div[@class='promo-wrapper']"))
         )
 
-        for news_tag in news_tags:
-          last_time = float(news_tag.find_element(By.CLASS_NAME, 'promo-timestamp').get_attribute('data-timestamp'))/1000
-          if last_time < time_limit:
-            return news
-          time = datetime.fromtimestamp(last_time).strftime('%y-%m-%d')
-          title = news_tag.find_element(By.CLASS_NAME, 'promo-title').text
-          desc = news_tag.find_element(By.CLASS_NAME, 'promo-description').text
-          save_path = 'image not found'
-          
-          self.retrieve_image(news_tag, title)
+    def get_news_data(self, news_tag: WebElement, params: dict) -> List[str]:
+        last_time = float(news_tag.find_element(By.CLASS_NAME, 'promo-timestamp').get_attribute('data-timestamp')) / 1000
+        time = datetime.fromtimestamp(last_time).strftime('%y-%m-%d')
+        title = news_tag.find_element(By.CLASS_NAME, 'promo-title').text
+        desc = news_tag.find_element(By.CLASS_NAME, 'promo-description').text
+        save_path = self.retrieve_image(news_tag, title)
+        count_q = self.utils.count_query(params['query'], title, desc)
+        has_money = self.utils.mentions_money(f'{title} {desc}')
+        self.logger.debug(f"Added news item: {title}")
+        return [title, desc, time, save_path, count_q, has_money]
 
-          count_q = self.utils.count_query(params['query'], title, desc)
-          has_money = self.utils.mentions_money(f'{title} {desc}')
-          self.logger.debug(f"Added news item: {title}")
-          
-          news.append([title,desc,time,f'{save_path}',count_q,has_money])
-
+    def click_next_page(self, driver: WebDriver) -> None:
         next_anchor = WebDriverWait(driver, 5).until(
             EC.presence_of_element_located((By.XPATH, "//div[@class='search-results-module-next-page']//a"))
         )
         current_url = driver.current_url
-        next_anchor.click()        
-        WebDriverWait(driver, 10).until(
-            EC.url_changes(current_url)
-        )        
-    except Exception as e:
-          self.logger.error(f"An error occurred: {e}")
-    finally:
-      driver.close()
+        next_anchor.click()
+        WebDriverWait(driver, 10).until(EC.url_changes(current_url))
 
-    return news
+    def retrieve_news(self, params: dict) -> List[List[str]]:
+        driver = self.init_webdriver()
+        news = []
+        try:
+            self.logger.info("Starting search for news articles.")
+            self.search_news(driver, params['query'])
+            self.sort_news_by_newest(driver)
+            self.apply_filter(driver, params['section'])
+
+            last_time = datetime.now().timestamp()
+            time_limit = (datetime.now() - relativedelta(months=int(params['months']))).timestamp()
+
+            while last_time > time_limit:
+                news_tags = self.get_news_elements(driver)
+                for news_tag in news_tags:
+                    last_time = float(news_tag.find_element(By.CLASS_NAME, 'promo-timestamp').get_attribute('data-timestamp')) / 1000
+                    if last_time < time_limit:
+                        return news
+                    news.append(self.get_news_data(news_tag, params))
+                self.click_next_page(driver)
+        except Exception as e:
+            self.logger.error(f"An error occurred: {e}")
+        finally:
+            driver.close()
+        return news
