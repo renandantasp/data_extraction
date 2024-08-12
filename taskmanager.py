@@ -1,19 +1,16 @@
-import os, os.path, logging
+import os
+import os.path
 from datetime import datetime
-from config import OUTPUT_DIR, LOGGING_LEVEL, LOG_FILE
+from config import OUTPUT_DIR
 from utils import Utils
 from RPA.Excel.Files import Files, Table
 from news_retriever import NewsRetriever
+from baselogger import BaseLogger
 from robocorp import workitems
 
-class TaskManager:
+class TaskManager(BaseLogger):
   def __init__(self):
-
-    logging.basicConfig(level=LOGGING_LEVEL, 
-                        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                        handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()])
-    self.logger = logging.getLogger(__name__)
-
+    super().__init__(logger_name=__name__)
     self.utils = Utils()
     self.news_retriever = NewsRetriever()
 

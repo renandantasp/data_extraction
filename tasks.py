@@ -1,5 +1,5 @@
-from robocorp.tasks import task
 from taskmanager import TaskManager
+from robocorp.tasks import task
 
 @task
 def execute_task():

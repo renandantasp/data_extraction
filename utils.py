@@ -1,17 +1,11 @@
 import re
-import logging
-from config import LOG_FILE
+from baselogger import BaseLogger
 
-class Utils:
+class Utils(BaseLogger):
   
   def __init__(self):
-    self.logger = logging.getLogger(__name__)
-    self.logger.setLevel(logging.DEBUG)
-    file_handler = logging.FileHandler(LOG_FILE)
-    stream_handler = logging.StreamHandler()
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    file_handler.setFormatter(formatter)
-    stream_handler.setFormatter(formatter)
+    super().__init__(logger_name=__name__)
+  
 
   def count_query(self, query: str, title: str, desc: str) -> int:
     """
@@ -28,8 +22,8 @@ class Utils:
       Returns:
       int: The total number of occurrences of the query in the title and description.
     """
-    occurr_title = re.findall(query, title)
-    occurr_desc = re.findall(query, desc)
+    occurr_title = re.findall(query.lower(), title.lower())
+    occurr_desc = re.findall(query.lower(), desc.lower())
     count = len(occurr_title) + len(occurr_desc)
     self.logger.debug(f"Query '{query}' found {count} times in title and description.")
     return count

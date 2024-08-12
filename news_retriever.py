@@ -1,6 +1,5 @@
 from typing import List
 import os
-import logging
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from selenium import webdriver
@@ -14,38 +13,15 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.remote.webdriver import WebDriver
 import urllib.request
+from baselogger import BaseLogger
 from utils import Utils
-from config import LOG_FILE, OUTPUT_DIR
+from config import OUTPUT_DIR
 
-class NewsRetriever:
+class NewsRetriever(BaseLogger):
   
     def __init__(self):
+        super().__init__(logger_name=__name__)
         self.utils = Utils()
-        self.logger = self.setup_logger()
-
-    def setup_logger(self) -> logging.Logger:
-        """
-        Sets up the logger for the class.
-
-        Returns:
-        logging.Logger: Configured logger instance.
-        """
-        try:
-          logger = logging.getLogger(__name__)
-          logger.setLevel(logging.DEBUG)
-          file_handler = logging.FileHandler(LOG_FILE)
-          stream_handler = logging.StreamHandler()
-
-          formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-          file_handler.setFormatter(formatter)
-          stream_handler.setFormatter(formatter)
-
-          logger.addHandler(file_handler)
-          logger.addHandler(stream_handler)
-        except Exception as e:
-          self.logger.error(f"Error setting up the logger. {e}")
-
-        return logger
 
     def download_image(self, image_url: str, save_path: str) -> None:
         """
