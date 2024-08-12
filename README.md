@@ -1,6 +1,6 @@
 # News Extractor Project
 
-This project is designed to extract news articles from the Los Angeles Times website based on specified search parameters and save the extracted data into an Excel file.
+This project is designed to extract news articles from the Los Angeles Times website based on specified search parameters and save the extracted data into an Excel file and the images in .jpg files.
 
 Table of Contents
 - [News Extractor Project](#news-extractor-project)
@@ -79,7 +79,7 @@ class TaskManager(BaseLogger):
 
 Defines the BaseLogger class for setting up logging configurations used by other classes in the project.
 
-```
+```py
 import logging
 from config import LOG_FILE
 
@@ -90,7 +90,7 @@ class BaseLogger:
 ## config.py
 Contains configuration settings such as the output directory and log file path.
 
-```
+```py
 OUTPUT_DIR = 'output'
 LOG_FILE = 'output/news_extractor.log'
 ```
