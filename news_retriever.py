@@ -13,7 +13,7 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.remote.webdriver import WebDriver
 import urllib.request
-from baselogger import BaseLogger
+from base_logger import BaseLogger
 from utils import Utils
 from config import OUTPUT_DIR
 

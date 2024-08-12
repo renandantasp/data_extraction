@@ -5,7 +5,7 @@ from config import OUTPUT_DIR
 from utils import Utils
 from RPA.Excel.Files import Files, Table
 from news_retriever import NewsRetriever
-from baselogger import BaseLogger
+from base_logger import BaseLogger
 from robocorp import workitems
 
 class TaskManager(BaseLogger):
