@@ -18,7 +18,12 @@ from utils import Utils
 from config import OUTPUT_DIR
 
 class NewsRetriever(BaseLogger):
-  
+    """
+    The NewsRetriever class provides methods to retrieve news articles from the Los Angeles Times website.
+
+    This class inherits from BaseLogger to provide logging capabilities for debugging and tracking purposes.
+
+    """
     def __init__(self):
         super().__init__(logger_name=__name__)
         self.utils = Utils()

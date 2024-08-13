@@ -2,7 +2,9 @@ import logging
 from config import LOG_FILE
 
 class BaseLogger:
-
+  """
+  A base class to set up logging for derived classes.
+  """
   def __init__(self, logger_name : str):
     self.logger = self.setup_logger(logger_name)
     

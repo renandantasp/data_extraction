@@ -9,6 +9,14 @@ from base_logger import BaseLogger
 from robocorp import workitems
 
 class TaskManager(BaseLogger):
+  """
+    A class to manage the task of retrieving news articles, processing them, and saving the results to an Excel file.
+
+    The `TaskManager` class inherits from `BaseLogger` to provide logging capabilities. It utilizes the `NewsRetriever` 
+    class to fetch news articles from the Los Angeles Times website and processes the retrieved data to save it in an 
+    Excel file.
+  """
+  
   def __init__(self):
     super().__init__(logger_name=__name__)
     self.utils = Utils()

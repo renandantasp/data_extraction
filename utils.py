@@ -2,11 +2,16 @@ import re
 from base_logger import BaseLogger
 
 class Utils(BaseLogger):
-  
+  """
+  The Utils class provides utility functions for processing and analyzing text data, 
+  including counting occurrences of a query, checking for mentions of money, and normalizing text.
+
+  This class inherits from BaseLogger to provide logging capabilities for debugging and tracking purposes.
+  """
+
   def __init__(self):
     super().__init__(logger_name=__name__)
   
-
   def count_query(self, query: str, title: str, desc: str) -> int:
     """
       Count occurrences of the query in the title and description.
