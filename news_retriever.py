@@ -76,6 +76,9 @@ class NewsRetriever(BaseLogger):
         Returns:
         None
         """
+        if filter_text == '': 
+            return
+            
         filter_xpath = f"//label[span[text()='{filter_text}']]//input[@type='checkbox']"
         try:
             filter = WebDriverWait(driver, 5).until(
@@ -183,7 +186,7 @@ class NewsRetriever(BaseLogger):
         except Exception as e:
           self.logger(f"Error trying to retrieve info from news' elements. {e}")
 
-    def click_next_page(self, driver: WebDriver) -> None:
+    def click_next_page(self, driver: WebDriver) -> bool:
         """
         Navigates to the next page of the search results.
 
@@ -191,8 +194,9 @@ class NewsRetriever(BaseLogger):
         driver (WebDriver): The web driver instance.
 
         Returns:
-        None
+        bool: True if the next page exists, false if not
         """
+        has_next_page = True
         try:
           next_anchor = WebDriverWait(driver, 5).until(
               EC.presence_of_element_located((By.XPATH, "//div[@class='search-results-module-next-page']//a"))
@@ -202,6 +206,9 @@ class NewsRetriever(BaseLogger):
           WebDriverWait(driver, 10).until(EC.url_changes(current_url))
         except TimeoutException as e:
           self.logger.error(f"Error trying to access the next page. {e}")
+          has_next_page = False
+        
+        return has_next_page
 
     def retrieve_news(self, params: dict) -> List[List[str]]:
         """
@@ -223,15 +230,15 @@ class NewsRetriever(BaseLogger):
 
             last_time = datetime.now().timestamp()
             time_limit = (datetime.now() - relativedelta(months=int(params['months']))).timestamp()
-
-            while last_time > time_limit:
+            has_next_page = True
+            while last_time > time_limit and has_next_page:
                 news_tags = self.get_news_elements(driver)
                 for news_tag in news_tags:
                     last_time = float(news_tag.find_element(By.CLASS_NAME, 'promo-timestamp').get_attribute('data-timestamp')) / 1000
                     if last_time < time_limit:
                         return news
                     news.append(self.get_news_data(news_tag, params))
-                self.click_next_page(driver)
+                has_next_page = self.click_next_page(driver)
         except Exception as e:
             self.logger.error(f"An error occurred: {e}")
         finally:

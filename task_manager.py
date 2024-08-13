@@ -35,9 +35,24 @@ class TaskManager(BaseLogger):
     """
     json = workitems.inputs.current.payload
     payload = dict()
-    payload['query'] = json['query']
-    payload['section'] = json['section']
-    payload['months'] = json['months']
+    try:
+      payload['query'] = json['query']
+    except KeyError as e:
+      self.logger.error(f"The 'query' field is missing in the payload, the query will be set to an empty string. {e}")
+      payload['query'] = ''
+
+    try:  
+      payload['section'] = json['section']
+    except KeyError as e:
+      self.logger.error(f"The 'section' field is missing in the payload, the section will be set to an empty string. {e}")
+      payload['section'] = ''
+    
+    try:
+      payload['months'] = json['months']
+    except KeyError as e:
+      self.logger.error(f"The 'query' field is missing in the payload, the month will be set to 1. {e}")
+      payload['months'] = 1
+
     if payload['months'] <= 0:
       payload['months'] = 1
 
